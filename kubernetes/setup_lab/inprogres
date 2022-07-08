@@ -1,44 +1,37 @@
-run as root
-
 sudo -i
-
-    1  getenforce
-    2  setenforce 0
-    3  getenforce
-    4  sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
-    5  modprobe br_netfilter
-    6  echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
-    7  yum install -y yum-utils device-mapper-persistent-data lvm2
-    8  yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    9  yum install -y docker-ce
-   10  sed -i '/^ExecStart/ s/$/ --exec-opt native.cgroupdriver=systemd/' /usr/lib/systemd/system/docker.service
-   11  systemctl daemon-reload
-   12  systemctl enable docker --now
-   13  cat << EOF > /etc/yum.repos.d/kubernetes.repo
-   14  [kubernetes]
-   15  name=Kubernetes
-   16  baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
-   17  enabled=1
-   18  gpgcheck=0
-   19  repo_gpgcheck=0
-   20  gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
-   21    https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-   22  EOF
-   23  yum install -y kubelet-1.14.0-0 kubeadm-1.14.0-0 kubectl-1.14.0-0 kubernetes-cni-0.7.5
-   24  systemctl enable kubelet
-   25  kubeadm init --pod-network-cidr=10.244.0.0/16
-   26  sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-   27  swapoff -a
-   28  kubeadm init --pod-network-cidr=10.244.0.0/16
-
-exit
-
-    1  sudo -i
-    2  mkdir -p $HOME/.kube
-    3  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-    4  sudo chown $(id -u):$(id -g) $HOME/.kube/config
-    5  kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-    6  kubectl get pods --all-namespaces
+getenforce
+setenforce 0
+getenforce
+sed -i --follow-symlinks 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/sysconfig/selinux
+modprobe br_netfilter
+echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
+yum install -y yum-utils device-mapper-persistent-data lvm2
+yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+yum install -y docker-ce
+sed -i '/^ExecStart/ s/$/ --exec-opt native.cgroupdriver=systemd/' /usr/lib/systemd/system/docker.service
+systemctl daemon-reload
+systemctl enable docker --now
+cat << EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+yum install -y kubelet-1.14.0-0 kubeadm-1.14.0-0 kubectl-1.14.0-0 kubernetes-cni-0.7.5
+systemctl enable kubelet
+kubeadm init --pod-network-cidr=10.244.0.0/16
+sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+swapoff -a
+kubeadm init
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl get pods --all-namespaces
 
 
 
