@@ -22,4 +22,5 @@ https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 yum install -y kubelet-1.14.0-0 kubeadm-1.14.0-0 kubectl-1.14.0-0 kubernetes-cni-0.7.5
 systemctl enable kubelet
-kubeadm init --pod-network-cidr=10.244.0.0/16
+#kubeadm init --pod-network-cidr=10.244.0.0/16
+kubeadm init
